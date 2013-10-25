@@ -42,6 +42,7 @@ function Buffer:initialize(...)
       local string = arg1
       self.length = #string
       self.ctype = ffi.cast("unsigned char*", string)
+      self.ref = string -- keep ref for GC
    elseif type(arg1) == "table" then
       if type(arg2) == 'number' then
          local buffer = arg1
