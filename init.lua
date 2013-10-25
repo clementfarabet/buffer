@@ -76,6 +76,14 @@ function Buffer:initialize(...)
             ffi.copy(self.ctype+offset, buffer.ctype, buffer.length)
             offset = offset + buffer.length
          end
+      elseif not arg2 and arg1.length then
+         local buffer = arg1
+         local start = 1
+         local last = arg3 or buffer.length
+         assert(start>=1 and last<=buffer.length, 'incorrect bounds')
+         self.length = last - start + 1
+         self.ctype = buffer.ctype - 1 + start
+         self.ref = buffer -- keep lua ref for GC
       end
    else
       error("Input must be a string, a number or a buffer")
