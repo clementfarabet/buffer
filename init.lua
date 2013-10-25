@@ -185,6 +185,22 @@ function Buffer:clone()
    return new
 end
 
+-- not optimized
+function Buffer:find(substr)
+   local subbuf = Buffer(substr)
+   local subindex = 0
+
+   for i = 1,self.length do
+      while self[i + subindex] == subbuf[1 + subindex] do
+         subindex = subindex + 1
+         if subindex == subbuf.length then
+            return i
+         end
+      end
+      subindex = 0
+   end
+end
+
 local function compliment8(value)
    return value < 0x80 and value or -0x100 + value
 end
