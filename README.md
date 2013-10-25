@@ -63,7 +63,7 @@ something
 tomething
 ```
 
-A slicing operatora is provided:
+A slicing operator is provided:
 
 ```lua
 > a = b'testing'
