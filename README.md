@@ -33,7 +33,7 @@ another buffer:
 > print(buf2)
 <Buffer 00 00 00 00 00 00 00 00 00 00>
 > buf[1] = 10
-> bug[2] = 20
+> buf[2] = 20
 > print(buf2)
 <Buffer 0a 1e 00 00 00 00 00 00 00 00>
 ```
