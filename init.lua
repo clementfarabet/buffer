@@ -63,6 +63,19 @@ function Buffer:initialize(...)
             ffi.copy(self.ctype+offset, buffer.ctype, buffer.length)
             offset = offset + buffer.length
          end
+      elseif not arg2 and arg1[1] and type(arg1[1]) == 'table' then
+         -- concat buffers:
+         args = arg1
+         self.length = 0
+         for _,buffer in ipairs(args) do
+            self.length = self.length + buffer.length
+         end
+         self.ctype = ffi.gc(ffi.cast("unsigned char*", ffi.C.malloc(self.length)), ffi.C.free)
+         local offset = 0
+         for _,buffer in ipairs(args) do
+            ffi.copy(self.ctype+offset, buffer.ctype, buffer.length)
+            offset = offset + buffer.length
+         end
       end
    else
       error("Input must be a string, a number or a buffer")
@@ -109,6 +122,9 @@ function Buffer.meta:__index(key)
    if type(key) == "number" then
       if key < 1 or key > self.length then error("Index out of bounds") end
       return self.ctype[key - 1]
+   elseif type(key) == "table" then
+      local start,last = key[1],key[2]
+      return self:slice(start,last)
    end
    return Buffer[key]
 end
@@ -117,6 +133,10 @@ function Buffer.meta:__newindex(key, value)
    if type(key) == "number" then
       if key < 1 or key > self.length then error("Index out of bounds") end
       self.ctype[key - 1] = value
+      return
+   elseif type(key) == "table" then
+      local start,last = key[1],key[2]
+      self:slice(start,last):copy(value)
       return
    end
    rawset(self, key, value)
@@ -127,6 +147,9 @@ function Buffer:slice(start,last)
 end
 
 function Buffer:copy(src)
+   if type(src) == 'string' then
+      src = Buffer(src)
+   end
    assert(src.length == self.length, 'src and dst must have same length')
    ffi.copy(self.ctype, src.ctype, self.length)
    return self
