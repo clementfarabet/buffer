@@ -32,18 +32,26 @@ local Buffer = {
 }
 
 function Buffer:initialize(...)
+   -- Initialize is called up construction:
    local args = {...}
    local arg1,arg2,arg3 = unpack(args)
+
+   -- Buffer(N) : allocates a buffer of given size:
    if type(arg1) == "number" then
       local length = arg1
       self.length = length
       self.ctype = ffi.gc(ffi.cast("unsigned char*", ffi.C.malloc(length)), ffi.C.free)
+
+   -- Buffer(str) : allocates a buffer from the given string:
    elseif type(arg1) == "string" then
       local string = arg1
       self.length = #string
       self.ctype = ffi.cast("unsigned char*", string)
       self.ref = string -- keep ref for GC
+
    elseif type(arg1) == "table" then
+
+      -- Buffer(buffer, start, end) : allocates a buffer from another one, with start/end limits:
       if type(arg2) == 'number' then
          local buffer = arg1
          local start = arg2 or 1
@@ -52,6 +60,9 @@ function Buffer:initialize(...)
          self.length = last - start + 1
          self.ctype = buffer.ctype - 1 + start
          self.ref = buffer -- keep lua ref for GC
+
+      -- Buffer(buf1, buf2, buf3, buf4, ...) : allocates buffer from list of buffers
+      -- (that's a powerful concatenate method)
       elseif type(arg2) == "table" then
          -- concat buffers:
          self.length = 0
@@ -64,6 +75,8 @@ function Buffer:initialize(...)
             ffi.copy(self.ctype+offset, buffer.ctype, buffer.length)
             offset = offset + buffer.length
          end
+
+      -- Buffer(buffers) | Buffer({buf1,buf2,...}) : allocates a buffer from as list of buffers (table)
       elseif not arg2 and arg1[1] and type(arg1[1]) == 'table' then
          -- concat buffers:
          args = arg1
@@ -77,6 +90,8 @@ function Buffer:initialize(...)
             ffi.copy(self.ctype+offset, buffer.ctype, buffer.length)
             offset = offset + buffer.length
          end
+
+      -- Buffer(buffer) : allocates a buffer from another one (strict replica, sharing memory)
       elseif not arg2 and arg1.length then
          local buffer = arg1
          local start = 1
