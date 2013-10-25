@@ -59,3 +59,10 @@ res[{1,4}] = b'THIS'
 print(res:toString())
 res[{1,4}] = 'THAT'
 print(res:toString())
+
+print('')
+print('cloning')
+local new = res:clone()
+new[{1,4}] = 'test'
+print(res:toString())
+print(new:toString())

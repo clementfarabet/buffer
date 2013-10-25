@@ -163,6 +163,12 @@ function Buffer:copy(src)
    return self
 end
 
+function Buffer:clone()
+   local new = Buffer(self.length)
+   new:copy(self)
+   return new
+end
+
 local function compliment8(value)
    return value < 0x80 and value or -0x100 + value
 end

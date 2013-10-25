@@ -1,7 +1,8 @@
 Buffer
 ======
 
-A buffer object for LuaJIT.
+A buffer object for LuaJIT. The goal: efficient, C-speed, byte manipulation
+for LuaJIT.
 
 Install
 -------
@@ -88,6 +89,13 @@ testtestagain
 > b = b( {a1,a2,a3} )
 > print(b:toString())
 testtestagain
+```
+
+Finally, cloning a buffer allows clean memory separation:
+
+```lua
+> a = b'test'
+> c = a:clone()
 ```
 
 License
