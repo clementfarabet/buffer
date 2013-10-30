@@ -186,11 +186,12 @@ function Buffer:clone()
 end
 
 -- not optimized
-function Buffer:find(substr)
+function Buffer:find(substr, i1)
    local subbuf = Buffer(substr)
    local subindex = 0
+   i1 = i1 or 1
 
-   for i = 1,self.length do
+   for i = i1,self.length do
       while self[i + subindex] == subbuf[1 + subindex] do
          subindex = subindex + 1
          if subindex == subbuf.length then
@@ -199,6 +200,31 @@ function Buffer:find(substr)
       end
       subindex = 0
    end
+end
+
+function Buffer:split(substr)
+   local subbuf = Buffer(substr or " ")
+   local start = 1
+   local subindex = 0
+
+   local subs = {}
+
+   for i = 1,self.length do
+      while self[i + subindex] == subbuf[1 + subindex] do
+         subindex = subindex + 1
+         if subindex == subbuf.length then
+            if(start ~= i) then table.insert(subs, self:slice(start, i - 1)) end
+            start = i + subindex
+            break
+         end
+      end
+      subindex = 0
+   end
+
+   -- give the same behavior as stringx split when given a string
+   if(start < self.length) then table.insert(subs, self:slice(start, self.length)) end
+   return subs
+
 end
 
 local function compliment8(value)
