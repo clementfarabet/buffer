@@ -192,7 +192,7 @@ function Buffer:find(substr, i1)
    i1 = i1 or 1
 
    for i = i1,self.length do
-      while self[i + subindex] == subbuf[1 + subindex] do
+      while (i + subindex) < self.length and self[i + subindex] == subbuf[1 + subindex] do
          subindex = subindex + 1
          if subindex == subbuf.length then
             return i
@@ -210,7 +210,7 @@ function Buffer:split(substr)
    local subs = {}
 
    for i = 1,self.length do
-      while self[i + subindex] == subbuf[1 + subindex] do
+      while (i + subindex) < self.length and self[i + subindex] == subbuf[1 + subindex] do
          subindex = subindex + 1
          if subindex == subbuf.length then
             if(start ~= i) then table.insert(subs, self:slice(start, i - 1)) end
