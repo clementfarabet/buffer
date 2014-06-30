@@ -27,9 +27,33 @@ void *malloc(size_t __size);
 void free(void *__ptr);
 ]]
 
+pcall(require,'torch') -- optional Torch interface
+
 local Buffer = {
    meta = {}
 }
+
+local function sizeof(obj)
+   local tp = torch.typename(obj) or 'void'
+   local type2size = {
+      ['torch.FloatTensor'] = 4,
+      ['torch.DoubleTensor'] = 8,
+      ['torch.LongTensor'] = 8,
+      ['torch.IntTensor'] = 4,
+      ['torch.ShortTensor'] = 2,
+      ['torch.ByteTensor'] = 1,
+      ['torch.CharTensor'] = 1,
+      --
+      ['torch.FloatStorage'] = 4,
+      ['torch.DoubleStorage'] = 8,
+      ['torch.LongStorage'] = 8,
+      ['torch.IntStorage'] = 4,
+      ['torch.ShortStorage'] = 2,
+      ['torch.ByteStorage'] = 1,
+      ['torch.CharStorage'] = 1,
+   }
+   return type2size[tp]
+end
 
 function Buffer:initialize(...)
    -- Initialize is called up construction:
@@ -114,6 +138,24 @@ function Buffer:initialize(...)
          self.ctype = buffer.ctype - 1 + start
          self.ref = buffer -- keep lua ref for GC
       end
+
+   -- Buffer(tensor)
+   elseif torch and torch.typename(arg1) and torch.typename(arg1):find('Tensor') then
+      -- Mount buffer on tensor's raw data:
+      local tensor = arg1
+      assert(tensor:isContiguous(), 'tensor must be contiguous')
+      self.ctype = ffi.cast('unsigned char *', tensor:data())
+      self.length = tensor:nElement() * sizeof(tensor)
+      self.ref = tensor -- keep ref for GC
+   
+   -- Buffer(storage)
+   elseif torch and torch.typename(arg1) and torch.typename(arg1):find('Storage') then
+      -- Mount buffer on tensor's raw data:
+      local storage = arg1
+      self.ctype = ffi.cast('unsigned char *', storage:data())
+      self.length = storage:size() * sizeof(storage)
+      self.ref = storage -- keep ref for GC
+
    else
       error("Input must be a string, a number or a buffer")
    end

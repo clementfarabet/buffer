@@ -91,3 +91,20 @@ end
 print(buf)
 buf = nil -- forcing clearing of buf
 collectgarbage()
+
+print('')
+print('views on tensors and storages')
+local t = torch.range(1,10):resize(2,5)
+print(t)
+local buf = b(t)
+print(buf)
+
+local t = torch.range(1,10):resize(2,5):byte()
+print(t)
+local buf = b(t)
+print(buf)
+
+local s = t:storage()
+print(s)
+local buf = b(s)
+print(buf)
