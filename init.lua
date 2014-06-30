@@ -379,6 +379,14 @@ function Buffer:toString(i, j)
    return ffi.string(self.ctype + offset, (j or self.length) - offset)
 end
 
+function Buffer:pointer(asnumber)
+   if asnumber then
+      return tonumber(ffi.cast('long', self.ctype))
+   else
+      return self.ctype
+   end
+end
+
 if torch then
    -- Additional helpers, to spit out storages rom buffers:
    function Buffer:toDoubleStorage()

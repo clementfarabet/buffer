@@ -117,3 +117,9 @@ local s = buf:toDoubleStorage()
 local tt = buf:toDoubleTensor(2,5)
 print(s)
 print(tt)
+
+print('')
+print('retrieve pointer')
+local buf = b'string'
+print(buf:pointer())
+print(buf:pointer(true))
