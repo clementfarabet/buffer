@@ -4,6 +4,8 @@ Buffer
 A buffer object for LuaJIT. The goal: efficient, C-speed, byte manipulation
 for LuaJIT.
 
+Also provides interfaces to Torch's tensors and storages, for easy serialization.
+
 Install
 -------
 
