@@ -122,8 +122,9 @@ serialization).
 License
 -------
 
-Code was originally borrowed from the Luvit folks. I've kept their license:
+Code was originally inspired from the Luvit folks.
 
+Copyright 2013-2014 Clement Farabet (MADBITS)
 Copyright 2012 The Luvit Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
