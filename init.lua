@@ -344,8 +344,7 @@ function Buffer:toString(i, j)
 end
 
 if torch then
-   -- Additional helpers, to spit out tensors and storages
-   -- from buffers
+   -- Additional helpers, to spit out storages rom buffers:
    function Buffer:toDoubleStorage()
       local size = self.length / 8
       local raw = ffi.cast('double *', self.ctype)
@@ -387,6 +386,23 @@ if torch then
       local raw = ffi.cast('unsigned char *', self.ctype)
       local pointer = tonumber(ffi.cast('long', raw))
       return torch.DoubleStorage(size, pointer)
+   end
+
+   -- Auto gen tensors from storages:
+   for k,toStorage in pairs(Buffer) do
+      if k:find('Storage') then
+         local kk = k:gsub('Storage','Tensor')
+         local _,_,tp = k:find('to(.*)Storage')
+         tp = tp..'Tensor'
+         Buffer[kk] = function(self, ...)
+            local storage = toStorage(self)
+            local tensor = torch[tp](storage)
+            if select(1,...) then
+               tensor:resize(...)
+            end
+            return tensor
+         end
+      end
    end
 end
 
