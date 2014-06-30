@@ -37,10 +37,23 @@ function Buffer:initialize(...)
    local arg1,arg2,arg3 = unpack(args)
 
    -- Buffer(N) : allocates a buffer of given size:
+   -- OR:
+   -- Buffer(N, ptr [, manage]) : mounts buffer on existing storage (manage memory or not):
    if type(arg1) == "number" then
       local length = arg1
       self.length = length
-      self.ctype = ffi.gc(ffi.cast("unsigned char*", ffi.C.malloc(length)), ffi.C.free)
+      local ptr = arg2 -- optional
+      local manage = arg3 -- optional: manage memory on raw pointers
+      if ptr then
+         if manage then
+            self.ctype = ffi.gc(ffi.cast("unsigned char*", ptr), ffi.C.free)
+         else
+            self.ctype = ffi.cast("unsigned char*", ptr)
+         end
+      else
+         local ptr = ffi.C.malloc(length)
+         self.ctype = ffi.gc(ffi.cast("unsigned char*", ptr), ffi.C.free)
+      end
 
    -- Buffer(str) : allocates a buffer from the given string:
    elseif type(arg1) == "string" then

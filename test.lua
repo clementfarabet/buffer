@@ -66,3 +66,28 @@ local new = res:clone()
 new[{1,4}] = 'test'
 print(res:toString())
 print(new:toString())
+
+print('')
+print('creating buffer from raw managed memory')
+local ffi = require 'ffi'
+local mem = ffi.C.malloc(16)
+local buf = b(16, mem)
+for i = 1,16 do
+   buf[i] = i
+end
+print(buf)
+buf = nil -- forcing clearing of buf
+collectgarbage()
+ffi.C.free(mem)
+
+print('')
+print('creating buffer from raw UN-managed memory')
+local ffi = require 'ffi'
+local mem = ffi.C.malloc(16)
+local buf = b(16, mem, true)
+for i = 1,16 do
+   buf[i] = i
+end
+print(buf)
+buf = nil -- forcing clearing of buf
+collectgarbage()
