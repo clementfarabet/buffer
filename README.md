@@ -98,6 +98,27 @@ Finally, cloning a buffer allows clean memory separation:
 > c = a:clone()
 ```
 
+More advanced constructors are also available, to mount buffers on arbitrary
+managed or unmanaged chunks of memory. See tests for examples.
+
+Last, if Torch is available, converters are available from buffers to tensors
+and back. This is especially handy for multithreaded / multimachine environments,
+where exchanging tensors must be done at optimal speed (i.e. with no complex 
+serialization).
+
+```lua
+> t = torch.FloatTensor(10):normal()
+> buf = b(t)
+-- buf is now a view on t's underlying contiguous storage
+-- buf could be transmitted over sockets / threads, as raw binary data (see async for use cases)
+
+-- from buf, new storages or tensors can be constructed like this:
+> tt = buf:toFloatStorage()
+> tt = buf:toFloatTensor()
+> tt = buf:toFloatTensor(2,5)
+-- these are all views on the original storage of t.
+```
+
 License
 -------
 
