@@ -71,12 +71,18 @@ function Buffer:initialize(...)
       if ptr then
          if manage then
             self.ctype = ffi.gc(ffi.cast("unsigned char*", ptr), ffi.C.free)
+            self.created = false
+            self.managed = true
          else
             self.ctype = ffi.cast("unsigned char*", ptr)
+            self.created = false
+            self.managed = false
          end
       else
          local ptr = ffi.C.malloc(length)
          self.ctype = ffi.gc(ffi.cast("unsigned char*", ptr), ffi.C.free)
+         self.created = true
+         self.managed = true
       end
 
    -- Buffer(str) : allocates a buffer from the given string:
@@ -85,6 +91,8 @@ function Buffer:initialize(...)
       self.length = #string
       self.ctype = ffi.cast("unsigned char*", string)
       self.ref = string -- keep ref for GC
+      self.created = false 
+      self.managed = false
 
    elseif type(arg1) == "table" then
 
@@ -97,6 +105,8 @@ function Buffer:initialize(...)
          self.length = last - start + 1
          self.ctype = buffer.ctype - 1 + start
          self.ref = buffer -- keep lua ref for GC
+         self.created = false 
+         self.managed = false
 
       -- Buffer(buf1, buf2, buf3, buf4, ...) : allocates buffer from list of buffers
       -- (that's a powerful concatenate method)
@@ -112,8 +122,10 @@ function Buffer:initialize(...)
             ffi.copy(self.ctype+offset, buffer.ctype, buffer.length)
             offset = offset + buffer.length
          end
+         self.created = true
+         self.managed = true
 
-      -- Buffer(buffers) | Buffer({buf1,buf2,...}) : allocates a buffer from as list of buffers (table)
+      -- Buffer(buffers) | Buffer({buf1,buf2,...}) : allocates a buffer from a list of buffers (table)
       elseif not arg2 and arg1[1] and type(arg1[1]) == 'table' then
          -- concat buffers:
          args = arg1
@@ -127,6 +139,8 @@ function Buffer:initialize(...)
             ffi.copy(self.ctype+offset, buffer.ctype, buffer.length)
             offset = offset + buffer.length
          end
+         self.created = true
+         self.managed = true
 
       -- Buffer(buffer) : allocates a buffer from another one (strict replica, sharing memory)
       elseif not arg2 and arg1.length then
@@ -137,6 +151,8 @@ function Buffer:initialize(...)
          self.length = last - start + 1
          self.ctype = buffer.ctype - 1 + start
          self.ref = buffer -- keep lua ref for GC
+         self.created = false
+         self.managed = false
       end
 
    -- Buffer(tensor)
@@ -147,6 +163,8 @@ function Buffer:initialize(...)
       self.ctype = ffi.cast('unsigned char *', tensor:data())
       self.length = tensor:nElement() * sizeof(tensor)
       self.ref = tensor -- keep ref for GC
+      self.created = false
+      self.managed = false
    
    -- Buffer(storage)
    elseif torch and torch.typename(arg1) and torch.typename(arg1):find('Storage') then
@@ -155,6 +173,8 @@ function Buffer:initialize(...)
       self.ctype = ffi.cast('unsigned char *', storage:data())
       self.length = storage:size() * sizeof(storage)
       self.ref = storage -- keep ref for GC
+      self.created = false
+      self.managed = false
 
    else
       error("Input must be a string, a number or a buffer")
@@ -187,7 +207,23 @@ function Buffer.meta:__tostring()
    for i = 1, tonumber(self.length) do
       parts[i] = bit.tohex(self[i], 2)
    end
-   return "<Buffer " .. table.concat(parts, " ") .. ">"
+   local info = ''
+   if self.created then
+      info = info .. 'created:1,'
+   else
+      info = info .. 'created:0,'
+   end
+   if self.managed then
+      info = info .. 'managed:1,'
+   else
+      info = info .. 'managed:0,'
+   end
+   if (self.created and self.managed) or self.ref then
+      info = info .. 'safe:1'
+   else
+      info = info .. 'safe:0'
+   end
+   return "<Buffer [" .. info .. "] " .. table.concat(parts, " ") .. ">"
 end
 
 function Buffer.meta:__concat(other)
