@@ -343,6 +343,53 @@ function Buffer:toString(i, j)
    return ffi.string(self.ctype + offset, (j or self.length) - offset)
 end
 
+if torch then
+   -- Additional helpers, to spit out tensors and storages
+   -- from buffers
+   function Buffer:toDoubleStorage()
+      local size = self.length / 8
+      local raw = ffi.cast('double *', self.ctype)
+      local pointer = tonumber(ffi.cast('long', raw))
+      return torch.DoubleStorage(size, pointer)
+   end
+   function Buffer:toFloatStorage()
+      local size = self.length / 4
+      local raw = ffi.cast('float *', self.ctype)
+      local pointer = tonumber(ffi.cast('long', raw))
+      return torch.DoubleStorage(size, pointer)
+   end
+   function Buffer:toLongStorage()
+      local size = self.length / 8
+      local raw = ffi.cast('long *', self.ctype)
+      local pointer = tonumber(ffi.cast('long', raw))
+      return torch.DoubleStorage(size, pointer)
+   end
+   function Buffer:toIntStorage()
+      local size = self.length / 4
+      local raw = ffi.cast('int *', self.ctype)
+      local pointer = tonumber(ffi.cast('long', raw))
+      return torch.DoubleStorage(size, pointer)
+   end
+   function Buffer:toShortStorage()
+      local size = self.length / 2
+      local raw = ffi.cast('short *', self.ctype)
+      local pointer = tonumber(ffi.cast('long', raw))
+      return torch.DoubleStorage(size, pointer)
+   end
+   function Buffer:toCharStorage()
+      local size = self.length
+      local raw = ffi.cast('char *', self.ctype)
+      local pointer = tonumber(ffi.cast('long', raw))
+      return torch.DoubleStorage(size, pointer)
+   end
+   function Buffer:toByteStorage()
+      local size = self.length
+      local raw = ffi.cast('unsigned char *', self.ctype)
+      local pointer = tonumber(ffi.cast('long', raw))
+      return torch.DoubleStorage(size, pointer)
+   end
+end
+
 local buffer = {
 }
 setmetatable(buffer, {
