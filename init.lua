@@ -381,9 +381,9 @@ end
 
 function Buffer:pointer(asnumber)
    if asnumber then
-      return tonumber(ffi.cast('long', self.ctype))
+      return tonumber(ffi.cast('long', self.ctype)), self.length
    else
-      return self.ctype
+      return self.ctype, self.length
    end
 end
 
