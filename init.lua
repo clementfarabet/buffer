@@ -257,6 +257,15 @@ function Buffer.meta:__newindex(key, value)
    rawset(self, key, value)
 end
 
+function Buffer.meta:__len()
+   -- WARNING: only supported with Lua 5.2
+   -- (
+   --    5.2 was activated here:
+   --    https://github.com/torch/luajit-rocks/commit/20c3073d01ad2474902e7c9c229f9e9ee3eec478
+   -- )
+   return self.length
+end
+
 function Buffer:slice(start,last)
    return Buffer(self, start, last)
 end
