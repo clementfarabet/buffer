@@ -408,37 +408,37 @@ if torch then
       local size = self.length / 4
       local raw = ffi.cast('float *', self.ctype)
       local pointer = tonumber(ffi.cast('long', raw))
-      return torch.DoubleStorage(size, pointer)
+      return torch.FloatStorage(size, pointer)
    end
    function Buffer:toLongStorage()
       local size = self.length / 8
       local raw = ffi.cast('long *', self.ctype)
       local pointer = tonumber(ffi.cast('long', raw))
-      return torch.DoubleStorage(size, pointer)
+      return torch.LongStorage(size, pointer)
    end
    function Buffer:toIntStorage()
       local size = self.length / 4
       local raw = ffi.cast('int *', self.ctype)
       local pointer = tonumber(ffi.cast('long', raw))
-      return torch.DoubleStorage(size, pointer)
+      return torch.IntStorage(size, pointer)
    end
    function Buffer:toShortStorage()
       local size = self.length / 2
       local raw = ffi.cast('short *', self.ctype)
       local pointer = tonumber(ffi.cast('long', raw))
-      return torch.DoubleStorage(size, pointer)
+      return torch.ShortStorage(size, pointer)
    end
    function Buffer:toCharStorage()
       local size = self.length
       local raw = ffi.cast('char *', self.ctype)
       local pointer = tonumber(ffi.cast('long', raw))
-      return torch.DoubleStorage(size, pointer)
+      return torch.CharStorage(size, pointer)
    end
    function Buffer:toByteStorage()
       local size = self.length
       local raw = ffi.cast('unsigned char *', self.ctype)
       local pointer = tonumber(ffi.cast('long', raw))
-      return torch.DoubleStorage(size, pointer)
+      return torch.ByteStorage(size, pointer)
    end
 
    -- Auto gen tensors from storages:
