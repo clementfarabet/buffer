@@ -123,3 +123,9 @@ print('retrieve pointer')
 local buf = b'string'
 print(buf:pointer())
 print(buf:pointer(true))
+
+print('')
+print('length operator')
+local buf = b'something'
+print('length = ', buf.length)
+print('length operator = ', #buf)
